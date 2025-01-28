@@ -1,0 +1,8 @@
+Step 1: Familiarization and Setup
+Step 2: ESP32-WROVER Basic Programming
+Step 3: Creating a WiFi Access Point with ESP32-WROVER
+Step 4: Flipper Zero Basics
+Step 5: Developing a Companion App for Flipper Zero
+Step 6: Integration and Testing
+Step 7: Iteration and Enhancement
+
