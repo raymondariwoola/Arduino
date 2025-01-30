@@ -13,16 +13,24 @@
 #define START_CMD "start"
 #define STOP_CMD "stop"
 #define ACK_CMD "ack"
+#define LOG_CMD "log"
+#define LED_CMD "led="
+
+static bool server_running = false;
+static char log_buffer[1024];
 
 static void evilPortalApp_draw_callback(Canvas* canvas, void* ctx) {
     UNUSED(ctx);
     canvas_clear(canvas);
     canvas_draw_str(canvas, 5, 10, "Evil Portal App");
-    canvas_draw_str(canvas, 5, 20, "Press OK to start");
-    canvas_draw_str(canvas, 5, 30, "Press UP to select HTML");
-    canvas_draw_str(canvas, 5, 40, "Press DOWN to set AP");
-    canvas_draw_str(canvas, 5, 50, "Press LEFT to stop server");
-    canvas_draw_str(canvas, 5, 60, "Press RIGHT to reset");
+    canvas_draw_str(canvas, 5, 20, server_running ? "Server: Running" : "Server: Stopped");
+    canvas_draw_str(canvas, 5, 30, "Press OK to start");
+    canvas_draw_str(canvas, 5, 40, "Press UP to select HTML");
+    canvas_draw_str(canvas, 5, 50, "Press DOWN to set AP");
+    canvas_draw_str(canvas, 5, 60, "Press LEFT to stop server");
+    canvas_draw_str(canvas, 5, 70, "Press RIGHT to reset");
+    canvas_draw_str(canvas, 5, 80, "Press A to view logs");
+    canvas_draw_str(canvas, 5, 90, "Press B to control LED");
 }
 
 static void evilPortalApp_input_callback(InputEvent* input_event, void* ctx) {
@@ -34,6 +42,7 @@ static void evilPortalApp_input_callback(InputEvent* input_event, void* ctx) {
             // Send START_CMD to ESP32S2
             furi_hal_uart_tx(FuriHalUartIdUSART1, (uint8_t*)START_CMD, strlen(START_CMD));
             furi_hal_uart_tx(FuriHalUartIdUSART1, (uint8_t*)"\n", 1);
+            server_running = true;
         } else if(input_event->key == InputKeyUp) {
             // Select HTML file
             char* html_file_path = "/ext/html_files/selected.html";
@@ -66,9 +75,26 @@ static void evilPortalApp_input_callback(InputEvent* input_event, void* ctx) {
             // Send STOP_CMD to ESP32S2
             furi_hal_uart_tx(FuriHalUartIdUSART1, (uint8_t*)STOP_CMD, strlen(STOP_CMD));
             furi_hal_uart_tx(FuriHalUartIdUSART1, (uint8_t*)"\n", 1);
+            server_running = false;
         } else if(input_event->key == InputKeyRight) {
             // Send RESET_CMD to ESP32S2
             furi_hal_uart_tx(FuriHalUartIdUSART1, (uint8_t*)RESET_CMD, strlen(RESET_CMD));
+            furi_hal_uart_tx(FuriHalUartIdUSART1, (uint8_t*)"\n", 1);
+        } else if(input_event->key == InputKeyA) {
+            // Request logs from ESP32S2
+            furi_hal_uart_tx(FuriHalUartIdUSART1, (uint8_t*)LOG_CMD, strlen(LOG_CMD));
+            furi_hal_uart_tx(FuriHalUartIdUSART1, (uint8_t*)"\n", 1);
+            // Read logs from UART
+            size_t read_size = furi_hal_uart_rx(FuriHalUartIdUSART1, (uint8_t*)log_buffer, sizeof(log_buffer) - 1, 1000);
+            log_buffer[read_size] = '\0';
+            // Display logs
+            canvas_clear(canvas);
+            canvas_draw_str(canvas, 5, 10, "Logs:");
+            canvas_draw_str(canvas, 5, 20, log_buffer);
+        } else if(input_event->key == InputKeyB) {
+            // Send LED_CMD to ESP32S2
+            char* led_cmd = LED_CMD "1"; // Example: Set LED to GOOD
+            furi_hal_uart_tx(FuriHalUartIdUSART1, (uint8_t*)led_cmd, strlen(led_cmd));
             furi_hal_uart_tx(FuriHalUartIdUSART1, (uint8_t*)"\n", 1);
         } else if(input_event->key == InputKeyBack) {
             // Exit the app

